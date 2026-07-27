@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { FileUpload } from '@/components/ui/file-upload';
@@ -20,8 +21,7 @@ const formSchema = z.object({
   name: z.string().min(1, 'Required'),
   slug: z.string().min(1, 'Required'),
   brief_description: z.string().optional().nullable(),
-  full_description: z.string().optional().nullable(),
-  technical_parameters: z.string().optional().nullable(),
+  technical_parameters: z.record(z.string()).optional().nullable(),
   applications: z.string().optional().nullable(),
   image_url: z.string().optional().nullable(),
   order_index: z.coerce.number(),
@@ -33,6 +33,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function Products() {
   const [dataList, setDataList] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [specs, setSpecs] = useState<{ key: string, value: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -44,8 +45,7 @@ export default function Products() {
       name: '',
       slug: '',
       brief_description: '',
-      full_description: '',
-      technical_parameters: '',
+      technical_parameters: {},
       applications: '',
       image_url: '',
       order_index: 0,
@@ -75,6 +75,10 @@ export default function Products() {
   const onSubmit = async (values: FormValues) => {
     try {
       const cleanValues = { ...values } as any;
+      // transform specs array into record for storage
+      const specsRecord: Record<string, string> = {};
+      specs.forEach(s => { if (s.key) specsRecord[s.key] = s.value; });
+      cleanValues.technical_parameters = Object.keys(specsRecord).length ? specsRecord : null;
       Object.keys(cleanValues).forEach(k => {
         if (cleanValues[k] === '') cleanValues[k] = null;
       });
@@ -114,13 +118,18 @@ export default function Products() {
       name: item.name || '',
       slug: item.slug || '',
       brief_description: item.brief_description || '',
-      full_description: item.full_description || '',
-      technical_parameters: item.technical_parameters || '',
+      technical_parameters: item.technical_parameters || {},
       applications: item.applications || '',
       image_url: item.image_url || '',
       order_index: item.order_index ?? 0,
       is_active: item.is_active ?? false,
     });
+    // parse technical parameters into specs array for editing
+    const s: { key: string, value: string }[] = [];
+    if (item.technical_parameters) {
+      Object.entries(item.technical_parameters).forEach(([k, v]) => s.push({ key: k, value: v as string }));
+    }
+    setSpecs(s);
     setOpen(true);
   };
 
@@ -131,13 +140,13 @@ export default function Products() {
       name: '',
       slug: '',
       brief_description: '',
-      full_description: '',
-      technical_parameters: '',
+      technical_parameters: {},
       applications: '',
       image_url: '',
       order_index: 0,
       is_active: false,
     });
+    setSpecs([]);
     setOpen(true);
   };
 
@@ -157,7 +166,7 @@ export default function Products() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField control={form.control} name="category_id" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <Label>Category</Label>
                     <Select value={field.value || ''} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
@@ -175,7 +184,7 @@ export default function Products() {
                 )} />
                 <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <Label>Name</Label>
                     <FormControl><Input {...field} value={field.value || ''} onChange={(e) => {
                       field.onChange(e);
                       const generatedSlug = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
@@ -186,42 +195,47 @@ export default function Products() {
                 )} />
                 <FormField control={form.control} name="slug" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Slug</FormLabel>
+                    <Label>Slug</Label>
                     <FormControl><Input {...field} value={field.value || ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="brief_description" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Brief Description</FormLabel>
+                    <Label>Brief Description</Label>
                     <FormControl><Textarea {...field} value={field.value || ''} rows={4} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
-                <FormField control={form.control} name="full_description" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Description</FormLabel>
-                    <FormControl><Textarea {...field} value={field.value || ''} rows={4} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="technical_parameters" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Technical Parameters</FormLabel>
-                    <FormControl><Input {...field} value={field.value || ''} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                <div className="space-y-2">
+                  <Label>Technical Parameters</Label>
+                  {specs.map((spec, i) => (
+                    <div key={i} className="flex gap-2">
+                      <Input placeholder="Key (e.g. Type)" value={spec.key} onChange={e => {
+                        const newSpecs = [...specs];
+                        newSpecs[i].key = e.target.value;
+                        setSpecs(newSpecs);
+                      }} />
+                      <Input placeholder="Value (e.g. Heavy Duty)" value={spec.value} onChange={e => {
+                        const newSpecs = [...specs];
+                        newSpecs[i].value = e.target.value;
+                        setSpecs(newSpecs);
+                      }} />
+                      <Button type="button" variant="ghost" onClick={() => setSpecs(specs.filter((_, idx) => idx !== i))}>Remove</Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" onClick={() => setSpecs([...specs, { key: '', value: '' }])}>Add Parameter</Button>
+                </div>
                 <FormField control={form.control} name="applications" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Applications</FormLabel>
+                    <Label>Applications</Label>
                     <FormControl><Input {...field} value={field.value || ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="image_url" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Image Url</FormLabel>
+                    <Label>Image Url</Label>
                     <FormControl>
                       <FileUpload value={field.value || ''} onChange={field.onChange} bucket="images" folder="image_urls" accept="image/*" />
                     </FormControl>
@@ -230,14 +244,14 @@ export default function Products() {
                 )} />
                 <FormField control={form.control} name="order_index" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Order Index</FormLabel>
+                    <Label>Order Index</Label>
                     <FormControl><Input {...field} value={field.value || ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="is_active" render={({ field }) => (
                   <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5"><FormLabel>Is Active</FormLabel></div>
+                    <div className="space-y-0.5"><Label>Is Active</Label></div>
                     <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                   </FormItem>
                 )} />
