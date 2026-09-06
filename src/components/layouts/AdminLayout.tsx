@@ -125,16 +125,16 @@ export const AdminLayout = () => {
         <Sidebar className="border-r border-border bg-card">
           <SidebarHeader className="flex h-16 items-center px-4 w-full">
             <div className="flex items-center gap-3 w-full pl-2">
-              <div className="w-9 h-9 rounded-md flex items-center justify-center text-white shrink-0 shadow-sm bg-inherit bg-cover bg-center bg-no-repeat bg-[url(https://miaoda-edit-image.s3cdn.medo.dev/d6a1n87ee60x/IMG-d74edmumlips.png)]">
+              <div className="w-9 h-9 rounded-md flex items-center justify-center text-white shrink-0 shadow-sm bg-inherit bg-cover bg-center bg-no-repeat bg-[url('/images/Deepalilogo.png')]">
 
               </div>
-              <span className="truncate text-lg font-bold text-red-600 tracking-tight">Deepali Engineering</span>
+              <span className="truncate text-lg font-bold text-[#00B1F4] tracking-tight">Deepali Engineering</span>
             </div>
           </SidebarHeader>
           <SidebarContent className="pb-16">
             {navigation.map((group) => (
               <SidebarGroup key={group.title}>
-                <SidebarGroupLabel className="text-xs uppercase tracking-wider text-red-600 font-bold flex items-center gap-2">
+                <SidebarGroupLabel className="text-xs uppercase tracking-wider text-[#00B1F4] font-bold flex items-center gap-2">
                   <group.icon className="w-3.5 h-3.5" />
                   {group.title}
                 </SidebarGroupLabel>
@@ -169,14 +169,14 @@ export const AdminLayout = () => {
             <div className="flex items-center gap-4">
               <button 
                 onClick={toggleTheme} 
-                className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                className="rounded-full p-2 text-[#00B1F4] hover:bg-[#00B1F4]/10 hover:text-[#00B1F4] transition-colors"
                 title="Toggle Dark Mode"
               >
                 {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-hidden">
-                  <Avatar className="h-9 w-9 border border-border cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all">
+                  <Avatar className="h-9 w-9 border border-[#00B1F4] cursor-pointer hover:ring-2 hover:ring-[#00B1F4]/20 transition-all">
                     <AvatarFallback className="bg-primary/10 text-primary">{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
@@ -199,7 +199,7 @@ export const AdminLayout = () => {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut} className="text-red-600 cursor-pointer font-medium focus:bg-red-50 focus:text-red-700">
+                  <DropdownMenuItem onClick={signOut} className="text-[#00B1F4] cursor-pointer font-medium focus:bg-[#00B1F4]/10 focus:text-[#00B1F4]">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>
