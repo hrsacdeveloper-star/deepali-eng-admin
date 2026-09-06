@@ -134,7 +134,7 @@ export const Login = () => {
       <Card className="w-full max-w-md border-border shadow-sm">
         <CardHeader className="space-y-2 text-center pb-6">
           <img
-            src="https://miaoda-edit-image.s3cdn.medo.dev/d6a1n87ee60x/IMG-d9f5wvp6vzls.png"
+            src="/images/Deepalilogo.png"
             alt="Deepali Engineering"
             className="h-16 w-auto mx-auto mb-4 dark:invert"
             data-editor-config="%7B%22defaultSrc%22%3A%22https%3A%2F%2Fmiaoda-edit-image.s3cdn.medo.dev%2Fd6a1n87ee60x%2FIMG-d9f5wvp6vzls.png%22%7D" />
