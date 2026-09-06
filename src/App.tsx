@@ -39,6 +39,8 @@ import ToolRoomMachines from '@/pages/content_new/ToolRoomMachines';
 import QualitySections from '@/pages/content_new/QualitySections';
 import QualityStandards from '@/pages/content_new/QualityStandards';
 import TestingProcedures from '@/pages/content_new/TestingProcedures';
+import GiveAccess from '@/pages/system/GiveAccess';
+import UpdatePassword from '@/pages/system/UpdatePassword';
 
 
 const App: React.FC = () => {
@@ -83,6 +85,8 @@ const App: React.FC = () => {
               <Route path="chatbot-documents" element={<ChatbotDocuments />} />
               <Route path="chatbot-knowledge" element={<ChatbotKnowledge />} />
               <Route path="profiles" element={<Profiles />} />
+              <Route path="give-access" element={<GiveAccess />} />
+              <Route path="update-password" element={<UpdatePassword />} />
             </Route>
           </Route>
           
