@@ -51,8 +51,14 @@ export default function GlobalPartners() {
   const onSubmit = async (data: PartnerFormValues) => {
     try {
       if (editingId) {
-        const { error } = await supabase.from('global_partners').update(data).eq('id', editingId);
+        const { data: updatedPartner, error } = await supabase
+          .from('global_partners')
+          .update(data)
+          .eq('id', editingId)
+          .select()
+          .maybeSingle();
         if (error) throw error;
+        if (!updatedPartner) throw new Error('Partner could not be updated. Please refresh and try again.');
         toast.success('Partner updated');
       } else {
         const { error } = await supabase.from('global_partners').insert([data]);
@@ -60,7 +66,8 @@ export default function GlobalPartners() {
         toast.success('Partner added');
       }
       setOpen(false);
-      fetchPartners();
+      setEditingId(null);
+      await fetchPartners();
     } catch (err: any) {
       toast.error(err.message);
     }
